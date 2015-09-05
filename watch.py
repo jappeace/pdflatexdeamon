@@ -1,7 +1,7 @@
 import time
 from watchdog.observers import Observer
 from commands import ExecuteOnFileChange
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 from filecmp import cmp
 from os.path import isfile
 
@@ -22,9 +22,16 @@ class FileWatcher:
             return
         if cmp(self.fileName, event.src_path):
             print("doing it!!")
-            print(
-                check_output(["pdflatex", "-halt-on-error", event.src_path])
-            )
+            result = ""
+            try:
+                result = check_output([
+                    "pdflatex",
+                    "-halt-on-error",
+                    event.src_path
+                ])
+            except CalledProcessError as e:
+                result = e.output
+            print(result)
     def start(self):
         self._observer.start()
         try:
@@ -33,3 +40,4 @@ class FileWatcher:
         except KeyboardInterrupt:
             self._observer.stop()
         self._observer.join()
+
