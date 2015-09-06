@@ -37,18 +37,21 @@ class FileWatcher:
             return
         if not isfile(event.src_path):
             return
-        if cmp(self.fileName, event.src_path):
-            print("doing it!!")
-            result = ""
-            try:
-                result = check_output([
-                    "pdflatex",
-                    "-halt-on-error",
-                    event.src_path
-                ])
-            except CalledProcessError as e:
-                result = e.output
-            print(result)
+        if not cmp(self.fileName, event.src_path):
+            return
+        print("doing it!!")
+        result = ""
+        try:
+            result = check_output([
+                "pdflatex",
+                "-halt-on-error",
+                event.src_path
+            ])
+        except CalledProcessError as e:
+            result = e.output
+
+        print(result.decode("ascii"))
+
     def start(self):
         self._observer.start()
         try:
