@@ -37,6 +37,9 @@ if __name__ == "__main__":
         filename,
         path
     )
+    # first time just do it
+    watcher.executeAction()
+    # then start watching
     watcher.start()
 
 

@@ -25,32 +25,35 @@ from os.path import isfile
 class FileWatcher:
     def __init__(self, fileName, path):
         event_handler = ExecuteOnFileChange()
-        event_handler.command = self.printPDF
+        event_handler.command = self.onEvent
         self.fileName = fileName
         self._observer = Observer()
         self._observer.schedule(event_handler, path, recursive=True)
         if not isfile(fileName):
             raise "not a file!"
 
-    def printPDF(self, event):
-        if event.is_directory:
-            return
-        if not isfile(event.src_path):
-            return
-        if not cmp(self.fileName, event.src_path):
-            return
+    def executeAction(self):
         print("doing it!!")
         result = ""
         try:
             result = check_output([
                 "pdflatex",
                 "-halt-on-error",
-                event.src_path
+                self.fileName
             ])
         except CalledProcessError as e:
             result = e.output
 
-        print(result.decode("ascii"))
+        print(result.decode("utf8"))
+    def onEvent(self, event):
+        if event.is_directory:
+            return
+        if not isfile(event.src_path):
+            return
+        # compare
+        if not cmp(self.fileName, event.src_path):
+            return
+        self.executeAction()
 
     def start(self):
         self._observer.start()
