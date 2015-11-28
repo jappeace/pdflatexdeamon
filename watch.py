@@ -29,22 +29,35 @@ class FileWatcher:
         self.fileName = fileName
         self._observer = Observer()
         self._observer.schedule(event_handler, path, recursive=True)
+        processPdf = [
+            "pdflatex",
+            "-halt-on-error",
+            self.fileName
+        ]
+        processM = [
+            "mpost",
+            self.fileName.split('.')[0]+".mp"
+        ]
+        self._commands = [
+            processPdf,
+            processM,
+            processPdf
+        ]
         if not isfile(fileName):
             raise "not a file!"
 
-    def executeAction(self):
-        print("doing it!!")
+    def executeAction(self, command):
+        print("executing %s" % ' '.join(command))
         result = ""
         try:
-            result = check_output([
-                "pdflatex",
-                "-halt-on-error",
-                self.fileName
-            ])
+            result = check_output(command)
         except CalledProcessError as e:
             result = e.output
-
         print(result.decode("utf8"))
+
+    def executeActions(self):
+        for command in self._commands:
+            self.executeAction(command)
     def onEvent(self, event):
         if event.is_directory:
             return
@@ -53,7 +66,7 @@ class FileWatcher:
         # compare
         if not cmp(self.fileName, event.src_path):
             return
-        self.executeAction()
+        self.executeActions()
 
     def start(self):
         self._observer.start()
