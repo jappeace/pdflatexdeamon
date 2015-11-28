@@ -58,13 +58,21 @@ class FileWatcher:
     def executeActions(self):
         for command in self._commands:
             self.executeAction(command)
+
+    def isCorrectFile(self, path):
+        try:
+            return cmp(self.fileName, path)
+        except FileNotFoundError:
+            print("File not found, doing it again")
+            return isSame(path)
+
     def onEvent(self, event):
         if event.is_directory:
             return
         if not isfile(event.src_path):
             return
         # compare
-        if not cmp(self.fileName, event.src_path):
+        if not self.isCorrectFile(event.src_path):
             return
         self.executeActions()
 
