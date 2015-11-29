@@ -66,7 +66,7 @@ class FileWatcher:
             return cmp(self.fileName, path)
         except FileNotFoundError:
             print("File not found, doing it again")
-            return isSame(path)
+            return self.isCorrectFile(path)
 
     def onEvent(self, event):
         if event.is_directory:
