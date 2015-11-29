@@ -18,7 +18,7 @@
 import time
 from watchdog.observers import Observer
 from commands import ExecuteOnFileChange
-from subprocess import check_output, CalledProcessError
+from subprocess import check_output, CalledProcessError, TimeoutExpired
 from filecmp import cmp
 from os.path import isfile
 
@@ -50,8 +50,10 @@ class FileWatcher:
         print("executing %s" % ' '.join(command))
         result = ""
         try:
-            result = check_output(command)
+            result = check_output(command, timeout=5)
         except CalledProcessError as e:
+            result = e.output
+        except TimeoutExpired as e:
             result = e.output
         print(result.decode("utf8"))
 
