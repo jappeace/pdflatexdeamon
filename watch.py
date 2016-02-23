@@ -32,6 +32,7 @@ class FileWatcher:
         processPdf = [
             "pdflatex",
             "-halt-on-error",
+            "-shell-escape",
             self.fileName
         ]
         processM = [
